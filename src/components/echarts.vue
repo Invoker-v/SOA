@@ -10,7 +10,7 @@
 <script>
     // import echarts from 'echarts'
     // import 'echarts/map/js/china'
-    //
+
     import axios from 'axios'
 
     const option={

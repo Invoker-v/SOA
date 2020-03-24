@@ -1,5 +1,4 @@
 <template>
-
   <div id="app">
     <scrollNews> </scrollNews>
     <echarts></echarts>
@@ -8,7 +7,6 @@
 </template>
 
 <script>
-// import HelloWorld from './components/HelloWorld.vue'
 import echarts from './components/echarts.vue'
 import virus from './components/virus.vue'
 import scrollNews from './components/scrollNews.vue'
