@@ -1,19 +1,26 @@
 <template>
+
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <scrollNews> </scrollNews>
+    <echarts></echarts>
+    <virus></virus>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
-
+// import HelloWorld from './components/HelloWorld.vue'
+import echarts from './components/echarts.vue'
+import virus from './components/virus.vue'
+import scrollNews from './components/scrollNews.vue'
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    echarts,
+    scrollNews,
+    virus
   }
 }
+
 </script>
 
 <style>
