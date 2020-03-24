@@ -1,21 +1,22 @@
 <template>
   <div id="app">
-    <scrollNews> </scrollNews>
+    <scrollNews></scrollNews>
     <echarts></echarts>
-    <virus></virus>
+    <!-- <virus></virus> -->
   </div>
 </template>
 
+
 <script>
-import echarts from './components/echarts.vue'
-import virus from './components/virus.vue'
-import scrollNews from './components/scrollNews.vue'
+import echarts from './components/echarts.vue';
+// import virus from './components/virus.vue';
+import scrollNews from './components/scrollNews.vue';
 export default {
   name: 'App',
   components: {
     echarts,
-    scrollNews,
-    virus
+    scrollNews
+    // virus
   }
 }
 
