@@ -33,7 +33,7 @@
                             <b-badge>7</b-badge>
                         </b-list-group-item>
                         <b-list-group-item>
-                            <b-button variant="danger" size="lg">新冠病毒</b-button>
+                            <b-button href="https://voice.baidu.com/act/newpneumonia/newpneumonia/?from=osari_pc_3" variant="danger" size="lg">新冠病毒</b-button>
                         </b-list-group-item>
                     </b-list-group>
                 </div>
