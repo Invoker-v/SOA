@@ -80,7 +80,7 @@
         mounted(){  //template挂载到页面时调用
             this.mychart = this.$echarts.init(this.$refs.mapbox);
             this.getData(); //执行getData方法
-            // this.mychart.setOption(option);
+            this.mychart.setOption(option);
         },
         methods:{
             getData(){
@@ -94,7 +94,7 @@
                     );   //从接口获取到数据后，使用map()函数，进行接口数据映射
                     option.series[0].data = data;
                     this.mychart.setOption(option) //这行代码能执行的前提是DOM已经渲染完成，只有DOM已渲染完成才能echarts初始化
-                })
+                }).catch(err=>{console.log(err)})
             }
         }
     }
