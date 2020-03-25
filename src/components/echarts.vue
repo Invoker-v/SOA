@@ -57,6 +57,12 @@
 import axios from "axios";
 
 const option = {
+    grid:{
+        left:0,
+        top:0,
+        right:0,
+        bottom:0
+    },
     title: {
         text: "疫情地图"
     },
@@ -92,6 +98,8 @@ const option = {
         type: "continuous",
         show: true,
         seriesIndex: 0,
+        min: 0,
+        max: 1000,
         // splitNumber:4,
 
         // align:'right'
@@ -99,11 +107,11 @@ const option = {
         //left right 这些属性控制分段所在的位置
         //textStyle() 分段大小
         inRange: {
-            symbol: "rect",
-            color: ["#ffc0b1", "#9c0505"]
+            // symbol: "rect",
+            color: ["white", "#9c0505"]
         },
         itemWidth: 20,
-        itemHeight: 1000
+        itemHeight: 400
     }],
     tooltip: {
         trigger: "item" //鼠标移入后显示人数
@@ -115,21 +123,21 @@ export default {
         //template挂载到页面时调用
         this.mychart = this.$echarts.init(this.$refs.mapbox);
         this.getData(); //执行getData方法
-        // this.mychart.setOption(option);
+        this.mychart.setOption(option);
     },
     methods: {
         getData() {
             axios.get("https://lab.isaaclin.cn/nCoV/api/area").then(res => {
-                let data = [];
+                let cur_data = [];
                 res.data.results.forEach(item => {
                     if (item.countryEnglishName == "China") {
-                        data.push({
+                        cur_data.push({
                             name: item.provinceShortName,
                             value: item.currentConfirmedCount
                         });
                     }
                 }); //从接口获取到数据后，使用map()函数，进行接口数据映射
-                option.series[0].data = data;
+                option.series[0].data = cur_data;
                 this.mychart.setOption(option); //这行代码能执行的前提是DOM已经渲染完成，只有DOM已渲染完成才能echarts初始化
             });
         }

@@ -61,7 +61,7 @@
 
 <style scoped>
     h2 {
-        padding: 20px 0
+        padding: 14px 0
     }
     .scrollNews {
         width: 100%;
@@ -88,18 +88,3 @@
         opacity: 0;
     }
 </style>
-<!--<template>-->
-<!--    <div class="scrollNews">-->
-<!--        <div style="height:100px;background-color:yellow ;margin: 0 auto" align="center"> <span> 此处放置滚动新闻</span></div>-->
-<!--    </div>-->
-<!--</template>-->
-
-<!--<script>-->
-<!--    export default {-->
-<!--        name: "scrollNews"-->
-<!--    }-->
-<!--</script>-->
-
-<!--<style scoped>-->
-
-<!--</style>-->
