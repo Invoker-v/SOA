@@ -89,35 +89,11 @@ const option = {
         }
     }],
     visualMap: [{
-        type: "piecewise",
+        type: "continuous",
         show: true,
+        seriesIndex: 0,
         // splitNumber:4,
-        pieces: [
-            //分段
-            {
-                min: 10000
-            },
-            {
-                min: 1000,
-                max: 9990
-            },
-            {
-                min: 100,
-                max: 999
-            },
-            {
-                min: 10,
-                max: 99
-            },
-            {
-                min: 1,
-                max: 9
-            },
-            {
-                min: 0,
-                max: 0
-            }
-        ],
+
         // align:'right'
         //orient:'horizontal' 默认竖直
         //left right 这些属性控制分段所在的位置
@@ -127,7 +103,7 @@ const option = {
             color: ["#ffc0b1", "#9c0505"]
         },
         itemWidth: 20,
-        itemHeight: 10
+        itemHeight: 1000
     }],
     tooltip: {
         trigger: "item" //鼠标移入后显示人数

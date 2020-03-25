@@ -10,16 +10,14 @@
 </template>
 
 <script>
-    // import axios from "axios";
+    import axios from "axios";
 
     export default {
         name: 'scrollNews',
         data () {
             return {
                 textArr: [
-                    '1 第一条公告',
-                    '2 第二条公告第二条公告',
-                    '3 第三条公告第三条公告第三条公告'
+
                 ],
                 number: 0
             }
@@ -34,12 +32,13 @@
         },
         mounted () {
             this.startMove()
+            this.getNews()
         },
         methods: {
             startMove () {
                 // eslint-disable-next-line
                 let timer = setTimeout(() => {
-                    if (this.number === 2) {
+                    if (this.number === this.textArr.length) {
                         this.number = 0;
                     } else {
                         this.number += 1;
@@ -48,16 +47,13 @@
                 }, 2000); // 滚动不需要停顿则将2000改成动画持续时间
             },
             getNews(){
-                // axios.get('https://lab.isaaclin.cn/nCoV/api/area').then(res=>{
-                //     // let news = [];
-                //     // res.data.results.forEach(item=>{
-                //     //         if (item.countryEnglishName == "China"){
-                //     //             data.push({"name" : item.provinceShortName, "value": item.currentConfirmedCount})
-                //     //         }
-                //     //     }
-                //     // );   //从接口获取到数据后，使用map()函数，进行接口数据映射
-                //
-                // })
+                axios.get('https://lab.isaaclin.cn/nCoV/api/news').then(res=>{
+                    // let news = []
+                    res.data.results.forEach(item=>{
+                            this.textArr.push(item.title)
+                        }
+                    );   //从接口获取到数据后，使用map()函数，进行接口数据映射
+                })
             }
         }
     }
