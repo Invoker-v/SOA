@@ -1,31 +1,13 @@
 <template>
-    <div id="map">
+    <div id="worldmap">
         <div ref="mapbox" style="height:100%;width:100%;margin:0 auto; position: absolute;"></div>
     </div>
 </template>
 
 <script>
-// import echarts from 'echarts'
 import 'echarts/map/js/world'
 import axios from "axios";
 
-//
-// function makeParallelAxis(schema) {
-//     var parallelAxis = [];
-//     for (var i = 0; i < schema.length; i++) {
-//         parallelAxis.push({dim: i, name: schema[i]});
-//     }
-//     return parallelAxis;
-// }
-// function  timestampToTime(timestamp) {
-//     if (timestamp.length  == 10)
-//         timestamp = timestamp*1000;
-//     var date = new Date(timestamp);
-//     var Y = date.getFullYear();
-//     var M = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1 ) : date.getMonth() + 1;
-//     var D = date.getDate();
-//     return Y +'/'+M + '/' + D ;
-// }
 const baseOption = {
     backgroundColor: '#1a1a1a',
     timeline: {
@@ -48,16 +30,20 @@ const baseOption = {
         boundaryGap: [0, 0.01],
         splitLine:{
             show:false
-        }
+        },
+        axisLabel:{
+            color: "white",
+        },
     },
     yAxis: {
         type: 'category',
-        textStyle:{
-            color: "white"
+        axisLabel:{
+            color: "white",
         },
+        boundaryGap: true,
         splitLine:{
             show:false
-        }
+        },
     },
     dataZoom: [
         {
@@ -78,6 +64,8 @@ const baseOption = {
             width: 10,
             height: '80%',
             showDataShadow: false,
+            start:90,
+            end:100,
             left: '0%'
         }
     ],
@@ -177,19 +165,19 @@ const baseOption = {
             name: 'death',
             type: 'bar',
             stack: 'total',
-            color: 'rgba(36,35,38,0.2)',
+            color: 'rgba(242,232,255,0.4)',
         }],
 }
 var options = []
 
 export default {
-    name: "echarts",
+    name: "worldmap",
     mounted() {
         //template挂载到页面时调用
         this.mychart = this.$echarts.init(this.$refs.mapbox);
         this.mychart.showLoading({
-            // text: '数据正在加载...',
-            // textColor: 'white',
+            text: '数据加载中，请耐心等待',
+            textColor: 'white',
             color: '#c23531',
             maskColor: 'rgba(0, 0, 0, 0.8)',
         })
@@ -218,7 +206,6 @@ export default {
                         data.push({name:name, c:s[0], r:s[1], d:s[2]})
                     }
                     data.sort((a, b) => b.c-a.c)
-                    console.log(data)
                     var cnt = data.length
                     var option={
                         yAxis:{
@@ -247,7 +234,7 @@ export default {
 
 
 <style scoped>
-    #map {
+    #worldmap {
         position: fixed;
         width: 100%;
         height: 100%;

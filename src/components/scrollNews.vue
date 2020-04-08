@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h2>新闻速递</h2>
         <div class="scrollNews">
             <transition name="slide">
                 <p class="text" :key="text.id">{{text.val}}</p>

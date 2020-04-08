@@ -1,29 +1,24 @@
 <template>
   <div id="app">
     <myHeader></myHeader>
-<!--    <leftPanel></leftPanel>-->
-    <echarts></echarts>
-
+    <worldmap></worldmap>
+    <BotPanel></BotPanel>
   </div>
 </template>
 
 
 <script>
-import echarts from './components/echarts.vue';
+import worldmap from './components/worldmap.vue';
 import myHeader from './components/header.vue';
-// import leftPanel from './components/leftPanel.vue';
+import BotPanel from './components/BotPanel.vue';
 // import virus from './components/virus.vue';
 // import scrollNews from './components/scrollNews.vue';
 export default {
   name: 'App',
   components: {
-    // eslint-disable-next-line vue/no-unused-components
     myHeader,
-    // leftPanel,
-    echarts,
-
-    // scrollNews
-    // virus
+    BotPanel,
+    worldmap,
   }
 }
 
