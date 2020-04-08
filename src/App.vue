@@ -1,21 +1,28 @@
 <template>
   <div id="app">
-    <scrollNews></scrollNews>
+    <myHeader></myHeader>
+<!--    <leftPanel></leftPanel>-->
     <echarts></echarts>
-    <!-- <virus></virus> -->
+
   </div>
 </template>
 
 
 <script>
 import echarts from './components/echarts.vue';
+import myHeader from './components/header.vue';
+// import leftPanel from './components/leftPanel.vue';
 // import virus from './components/virus.vue';
-import scrollNews from './components/scrollNews.vue';
+// import scrollNews from './components/scrollNews.vue';
 export default {
   name: 'App',
   components: {
+    // eslint-disable-next-line vue/no-unused-components
+    myHeader,
+    // leftPanel,
     echarts,
-    scrollNews
+
+    // scrollNews
     // virus
   }
 }
@@ -29,6 +36,8 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  margin-top: 0px;
 }
+
+
 </style>

@@ -67,7 +67,7 @@
         width: 100%;
         height: 40px;
         margin: 0 auto;
-        overflow: hidden;
+        overflow: scroll;
         position: relative;
         text-align: center;
     }
