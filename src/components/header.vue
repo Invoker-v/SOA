@@ -100,7 +100,7 @@
                 }, 2000); // 滚动不需要停顿则将2000改成动画持续时间
             },
             getNews() {
-                axios.get('https://lab.isaaclin.cn/nCoV/api/news').then(res => {
+                    axios.get('https://lab.isaaclin.cn/nCoV/api/rumors').then(res => {
                     // let news = []
                     res.data.results.forEach(item => {
                             this.textArr.push({text:item.title, url:item.sourceUrl})
@@ -157,6 +157,7 @@
         font-size: 0.28rem;
         line-height: 0.28rem;
     }
+
     #newsContainer {
         float: right;
         height: 60%;

@@ -2,6 +2,7 @@
   <div id="app">
     <myHeader></myHeader>
     <worldmap></worldmap>
+    <RightPanel></RightPanel>
     <BotPanel></BotPanel>
   </div>
 </template>
@@ -11,6 +12,7 @@
 import worldmap from './components/worldmap.vue';
 import myHeader from './components/header.vue';
 import BotPanel from './components/BotPanel.vue';
+import RightPanel from "./components/RightPanel";
 // import virus from './components/virus.vue';
 // import scrollNews from './components/scrollNews.vue';
 export default {
@@ -18,6 +20,7 @@ export default {
   components: {
     myHeader,
     BotPanel,
+    RightPanel,
     worldmap,
   }
 }

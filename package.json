@@ -16,7 +16,8 @@
     "echarts-gl": "^1.1.1",
     "jquery": "^3.4.1",
     "jsonp": "^0.2.1",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-cute-timeline": "^1.2.8"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",

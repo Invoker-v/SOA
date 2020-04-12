@@ -28,6 +28,9 @@ Vue.prototype.stats = function(a){
     return [c,r,d];
   }
 }
+
+Vue.prototype.$EventBus = new Vue()
+
 new Vue({
   render: (h) => h(App)
 }).$mount('#app');

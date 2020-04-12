@@ -6,26 +6,30 @@
 
 <script>
 import 'echarts/map/js/world'
+import { EventBus } from "./eventBus.js";
 import axios from "axios";
 
 const baseOption = {
     backgroundColor: '#1a1a1a',
     timeline: {
+        show:true,
         tooltip: {
             formatter: '{b}'
         },
 
         loop:false,
         axisType: 'category',
-        playInterval: 1000,
+        playInterval: 500,
         data: []
     },
     grid: {
         left: '6%',
         top: '9%',
+        bottom: "50%",
         right: '80% '
     },
     xAxis: {
+        name: "area",
         type: 'value',
         boundaryGap: [0, 0.01],
         splitLine:{
@@ -45,30 +49,30 @@ const baseOption = {
             show:false
         },
     },
-    dataZoom: [
-        {
-            show: true,
-            start: 0,
-            end: 100,
-            height:10
-        },
-        {
-            type: 'inside',
-            start: 0,
-            end: 100
-        },
-        {
-            show: true,
-            yAxisIndex: 0,
-            filterMode: 'empty',
-            width: 10,
-            height: '80%',
-            showDataShadow: false,
-            start:90,
-            end:100,
-            left: '0%'
-        }
-    ],
+    // dataZoom: [
+    //     {
+    //         show: true,
+    //         start: 0,
+    //         end: 100,
+    //         height:10
+    //     },
+    //     {
+    //         type: 'inside',
+    //         start: 0,
+    //         end: 100
+    //     },
+    //     {
+    //         show: true,
+    //         yAxisIndex: 0,
+    //         filterMode: 'empty',
+    //         width: 10,
+    //         height: '80%',
+    //         showDataShadow: false,
+    //         start:90,
+    //         end:100,
+    //         left: '0%'
+    //     }
+    // ],
     title: {
         text: 'COVID-19',
         subtext: 'data from John Hopkins',
@@ -86,7 +90,8 @@ const baseOption = {
             color: 'gray'
         },
         z: 200
-    },tooltip: {
+    },
+    tooltip: {
         trigger: 'item',
         formatter: function (params) {
             var value = (params.value + '').split('.');
@@ -135,7 +140,7 @@ const baseOption = {
         calculable: true, // 是否显示拖拽用的手柄
         // 定义 在选中范围中 的视觉元素
         inRange: {
-            color: ['#f9d2ab', 'yellow', 'orange', '#ff0112', '#370306'] // 图元的颜色
+            color: ['#f9d2ab', 'orange', '#ff0112', '#370306'] // 图元的颜色
         }
     },
     series : [{
@@ -151,25 +156,38 @@ const baseOption = {
         zlevel:-1
     },{
         name: 'confirmed',
+        animationThreshold: 20000000,
         type: 'bar',
         stack: 'total',
         color: 'rgba(255,0,0,0.2)',
     },
         {
             name: 'recovered',
+            animationThreshold: 20000000,
             type: 'bar',
             stack: 'total',
             color: 'rgba(125,255,22,0.2)',
         },
         {
             name: 'death',
+            animationThreshold: 20000000,
             type: 'bar',
             stack: 'total',
             color: 'rgba(242,232,255,0.4)',
-        }],
+        },
+        {
+            name: '比例',
+            type: 'pie',
+            radius: '30%',
+            center:['10%', '75%'],
+            data: []
+        }
+    ],
 }
 var options = []
-
+function getLocalTime(nS) {
+    return new Date(parseInt(nS) ).toLocaleString().replace(/:\d{1,2}$/,' ').split(" ")[0];
+}
 export default {
     name: "worldmap",
     mounted() {
@@ -183,53 +201,88 @@ export default {
         })
         this.getData(); //执行getData方法
         this.mychart.setOption({baseOption:baseOption, options:options});
+        EventBus.$on("date", (dataIndex) => {
+            // A发送来的消息
+            this.mychart.setOption({timeline:[{currentIndex:dataIndex}]})
+        });
     },
     methods: {
-        getData() {
-            axios.get("http://123.56.229.91:8080/data/global").then(res => {
-                var timeline_data = []
-                res.data.forEach(item=>{
-                    timeline_data.push(item.time)
-                    var series = [{data:[]},{data:[]},{data:[]},{data:[]}];
-                    var data  = []
-                    for (var key in item.data){
-                        var name = key;
-                        if (name == 'Mainland China')
-                            name = 'China'
-                        else if (name == 'US')
-                            name = 'United States'
-                        else if (name == 'South Sudan')
-                            name = 'S. Sudan'
+        processData(rawData){
+            var data = {}
+            rawData.forEach(item=>{
+                var date = getLocalTime(item.updateTime)
+                var country = item.name
+                var c = item.currentConfirmedCount
+                var r = item.curedCount
+                var d = item.deadCount
 
-                        var s = this.stats(item.data[key])
-                        series[0].data.push({name:name, value:s[0]})
+                c += r + d
+                if (!data[date]){
+                    data[date] = {}
+                }
+                if (!data[date][country])
+                    data[date][country] = [c, r, d]
+
+            })
+            return data
+        },
+        getData() {
+            axios.get("/api/record/all").then(res => {
+                var timeline_data = []
+                var time_data = []
+                var datas =  this.processData(res.data)
+
+                for (var date in datas){
+                    timeline_data.push(date)
+                    var series = [{data:[]},{data:[]},{data:[]},{data:[]}, {data:[]}];
+                    var data  = []
+                    for (var key in datas[date]){
+                        var s = datas[date][key]
+                        series[0].data.push({name:key, value:s[0]})
                         data.push({name:name, c:s[0], r:s[1], d:s[2]})
                     }
                     data.sort((a, b) => b.c-a.c)
-                    var cnt = data.length
+                    var cnt = data.length > 10 ? 10 : data.length
                     var option={
                         yAxis:{
                             data:[]
                         },
                         series:[]
                     }
-                    for (var i = 0; i < cnt; ++i) {
-                        option.yAxis.data.push(data[cnt-1-i].name)
-                        series[1].data.push({value:data[cnt-1-i].c - data[cnt-1-i].r- data[cnt-1-i].d, visualMap:false})
-                        series[2].data.push({value:data[cnt-1-i].r, visualMap:false})
-                        series[3].data.push({value:data[cnt-1-i].d, visualMap:false})
+                    var cs = 0, rs = 0, ds = 0;
+                    for (var i = 0; i < data.length; ++i) {
+                        if (i < cnt) {
+                            option.yAxis.data.push(data[cnt - 1 - i].name)
+                            series[1].data.push({
+                                value: data[cnt - 1 - i].c - data[cnt - 1 - i].r - data[cnt - 1 - i].d,
+                                visualMap: false
+                            })
+                            series[2].data.push({value: data[cnt - 1 - i].r, visualMap: false})
+                            series[3].data.push({value: data[cnt - 1 - i].d, visualMap: false})
+                        }
+                        cs += data[i].c
+                        rs += data[i].r
+                        ds += data[i].d
                     }
+                    series[4].data = [{value:cs+rs+ds, name: "确诊", visualMap: false}, {value:rs, name:"治愈", itemStyle:{color:"green"}, visualMap: false}, {value: ds, name: "死亡", visualMap: false}]
+                    time_data.push({date:date, data:[cs,rs,ds]})
+                    console.log(time_data)
                     option.series = series
                     options.push(option);
-                })
+                }
+                EventBus.$emit('time_data',time_data)
                 baseOption.timeline.data = timeline_data
-                baseOption.timeline.curIndex = timeline_data.length - 1;
+                baseOption.timeline.currentIndex = timeline_data.length - 1;
                 this.mychart.hideLoading()
                 this.mychart.setOption({baseOption:baseOption, options:options}); //这行代码    能执行的前提是DOM已经渲染完成，只有DOM已渲染完成才能echarts初始化
             });
         }
+    },
+    beforeDestroy(){
+        this.mychart.clear()
     }
 };
+
 </script>
 
 

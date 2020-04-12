@@ -5,8 +5,8 @@
 </template>
 
 <script>
-    import axios from "axios";
-
+    // import axios from "axios";
+    import { EventBus } from "./eventBus.js";
     var option = {
         title: {
             text: '世界疫情统计'
@@ -14,16 +14,24 @@
         tooltip: {
             trigger: 'axis',
             formatter: function (params) {
-                params = params[0];
-                var date = new Date(params.name);
-                return date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear() + ' : ' + params.value[1];
+                var date = new Date(params[0].name);
+                var text = ""
+                text +=  date.getDate() + '/' + (date.getMonth() + 1) + '/' + date.getFullYear()
+                for (var i = 0; i < params.length; ++i)
+                    text +=  "<br>" + params[i].seriesName+ ' : ' + params[i].value;
+                return text
+            },
+            textStyle:{
+                align:'left'
             },
             axisPointer: {
-                animation: false
+                animation: true
             }
         },
         grid:{
-            bottom:"5"
+            left: "10%",
+            right: "5%",
+            bottom:"10%"
         },
         legend: {
             data: [{name:'累计确诊', icon:"circle"}, {name:'累计治愈', icon:"rect"}, {name:'累计死亡', icon:"diamond"}],
@@ -34,11 +42,14 @@
             splitLine: {
                 show: false
             },
+            textStyle:{color:"white"},
             data:[]
         },
         yAxis: {
             type: 'value',
             boundaryGap: [0, '100%'],
+            textStyle:{color:"white"},
+
             splitLine: {
                 show: true
             }
@@ -47,7 +58,6 @@
             name: '累计确诊',
             type: 'line',
             showSymbol: true,
-            hoverAnimation: false,
             lineStyle:{
                 color: "red"
             },
@@ -57,7 +67,6 @@
                 name: '累计治愈',
                 type: 'line',
                 showSymbol: true,
-                hoverAnimation: false,
                 lineStyle:{
                     color: "green"
                 },
@@ -67,9 +76,9 @@
                 name: '累计死亡',
                 type: 'line',
                 showSymbol: true,
-                hoverAnimation: false,
                 data:[]
-            }]
+            }
+        ]
     };
 
     export default {
@@ -82,29 +91,27 @@
                 color: '#c23531',
                 maskColor: 'rgba(0, 0, 0, 0.1)',
             })
-            this.getData()
-        },
-        methods: {
-            getData(){
-                axios.get("http://123.56.229.91:8080/data/global").then(res => {
-                    var c_data = []
-                    var r_data = []
-                    var d_data = []
-                    res.data.forEach(item=>{
-                        var s = this.stats(item.data)
-                        option.xAxis.data.push(item.time)
-                        c_data.push(s[0])
-                        r_data.push(s[1])
-                        d_data.push(s[2])
-                    })
-                    option.series[0].data = c_data
-                    option.series[1].data = r_data
-                    option.series[2].data = d_data
-                    this.mychart.hideLoading()
-                    this.mychart.setOption(option)
+            EventBus.$on("time_data", (time_data) => {
+                // A发送来的消息
+                option.series[0].data = []
+                option.series[1].data = []
+                option.series[2].data = []
+                option.xAxis.data = []
+                time_data.forEach(item=>{
+                    option.xAxis.data.push({value:item.date, textStyle:{color: 'white'}})
+                    for (var i = 0; i < 3; ++i)
+                        option.series[i].data.push({value:item.data[i], textStyle:{color: 'white'}})
                 })
-
-            }
+                this.mychart.hideLoading()
+                this.mychart.setOption(option)
+            });
+            this.mychart.on("click", function(param){
+                if (param.dataIndex)
+                    EventBus.$emit('date', param.dataIndex)
+            })
+        },
+        beforeDestroy(){
+            this.mychart.clear()
         }
     }
 </script>
@@ -115,7 +122,7 @@
         position: fixed;
         width: 60%;
         left: 20%;
-        height: 30%;
+        height: 35%;
         bottom: 0;
         top: 60%;
         z-index: 2000;
