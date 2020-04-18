@@ -6,13 +6,14 @@
 
 <script>
     // import axios from "axios";
-    import { EventBus } from "./eventBus.js";
+    // import { EventBus } from "./eventBus.js";
     var option = {
         title: {
             text: '世界疫情统计'
         },
         tooltip: {
             trigger: 'axis',
+            triggerOn: 'click|mousemove',
             formatter: function (params) {
                 var date = new Date(params[0].name);
                 var text = ""
@@ -91,7 +92,8 @@
                 color: '#c23531',
                 maskColor: 'rgba(0, 0, 0, 0.1)',
             })
-            EventBus.$on("time_data", (time_data) => {
+            this.$EventBus.$on("time_data", (time_data) => {
+                console.log(time_data)
                 // A发送来的消息
                 option.series[0].data = []
                 option.series[1].data = []
@@ -105,9 +107,21 @@
                 this.mychart.hideLoading()
                 this.mychart.setOption(option)
             });
+            this.$EventBus.$on("timelinechanged", (currentIndex)=>{
+                this.mychart.dispatchAction({
+                    type: 'showTip',
+                    seriesIndex:0,
+                    dataIndex: currentIndex
+                })
+            })
+            var out = this
             this.mychart.on("click", function(param){
-                if (param.dataIndex)
-                    EventBus.$emit('date', param.dataIndex)
+                console.log(param)
+                if (param.dataIndex) {
+                    out.$EventBus.$emit('date', param.dataIndex)
+
+                }
+
             })
         },
         beforeDestroy(){

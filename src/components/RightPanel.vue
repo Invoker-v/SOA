@@ -2,19 +2,18 @@
     <div id="RightPanel">
         <timeline>
             <timeline-title>今日新闻</timeline-title>
-            <timeline-item v-for="item in news" :key="item.index">{{item}}</timeline-item>
+            <timeline-item v-for="item in news[index[0]]" :key="item.index" style="color: white;">{{item}}</timeline-item>
         </timeline>
     </div>
 </template>
 <script>
     import axios from "axios";
     import { Timeline, TimelineItem, TimelineTitle } from 'vue-cute-timeline'
-    var news = []
-
     export default {
         data(){
             return {
-                news: news
+                news: [],
+                index: [0]
             }
         },
         components: {
@@ -23,28 +22,42 @@
             TimelineTitle
         },
         mounted() {
-            axios.get('https://lab.isaaclin.cn/nCoV/api/news').then(res => {
-                news = []
-                res.data.results.forEach(item => {
-                        news.push(item.title)
-                    }
-                );   //从接口获取到数据后，使用map()函数，进行接口数据映射
+            axios.get('/api/news/all').then(res => {
+                var news = []
+                var i  = 0
+
+                for (var time in res.data) {
+                    news.push([])
+                    res.data[time].forEach(item=>{
+                        news[i].push(item.title)
+                    })
+                    i += 1
+                }
+                this.news = news
             })
-        },
-        methods:{
-            getNews(){
-                return news;
-            }
+            this.$EventBus.$on("date", (index)=>{
+                console.log(this.index)
+                this.$set(this.index, 0, index)
+            })
+            this.$EventBus.$on("timelinechanged", (index)=>{
+                console.log(index)
+                this.$set(this.index , 0, index)
+            })
         }
     }
 </script>
 <style scoped>
 #RightPanel{
     color: white;
-    font-size: 16px;
-    position: fixed;
+    width: 20%;
+    overflow: scroll;
+    font-size: 14px;
+    position: absolute;
     top:10%;
-    right: 10%;
-    z-index: 2000;
+    right: 0%;
+    z-index: 1000;
+    text-align: left;
+
 }
+#RightPanel::-webkit-scrollbar{      display:none    }
 </style>

@@ -28,7 +28,9 @@ Vue.prototype.stats = function(a){
     return [c,r,d];
   }
 }
-
+Vue.prototype.getTime= function(nS) {
+    return new Date(parseInt(nS) ).toLocaleString().replace(/:\d{1,2}$/,' ');
+}
 Vue.prototype.$EventBus = new Vue()
 
 new Vue({

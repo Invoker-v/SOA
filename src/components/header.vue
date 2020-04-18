@@ -7,7 +7,7 @@
         </div>
         <div id="newsContainer">
             <transition name="slide">
-                <p class="text" :key="text.id"><a :href="text.url" target="_blank" style="color: darkorange">{{text.val}}</a></p>
+                <p class="text" :key="text.id"><a :href="text.url" target="_blank" :style="{'color': text.color}">{{text.val}}</a></p>
             </transition>
         </div>
     </div>
@@ -65,13 +65,12 @@
         $("#clock").html(html);
     },1000);
 
-
     export default {
         name: "header.vue",
         data() {
             return {
                 textArr: [],
-                number: 0
+                number: 0,
             }
         },
         computed: {
@@ -79,13 +78,14 @@
                 return {
                     id: this.number,
                     val: this.textArr[this.number] == undefined ? undefined:this.textArr[this.number].text,
-                    url: this.textArr[this.number] == undefined ? undefined:this.textArr[this.number].url,
+                    color: this.textArr[this.number] == undefined ? undefined:this.textArr[this.number].color,
                 }
             }
         },
         mounted() {
             this.startMove()
             this.getNews()
+
         },
         methods: {
             startMove() {
@@ -100,10 +100,13 @@
                 }, 2000); // 滚动不需要停顿则将2000改成动画持续时间
             },
             getNews() {
-                    axios.get('https://lab.isaaclin.cn/nCoV/api/rumors').then(res => {
+                    axios.get('/api/rumor/all').then(res => {
                     // let news = []
-                    res.data.results.forEach(item => {
-                            this.textArr.push({text:item.title, url:item.sourceUrl})
+                    res.data.forEach(item => {
+                            var color = "gray";
+                            if (item.rumorType == "1") color = "green"
+                            if (item.rumorType == "0") color = "red"
+                            this.textArr.push({text:item.title, color:color})
                         }
                     );   //从接口获取到数据后，使用map()函数，进行接口数据映射
                 })
@@ -115,7 +118,7 @@
 <style scoped>
     #header {
         position: fixed;
-        z-index: 2;
+        z-index: 2000;
         width: 100%;
         background-color: rgba(1, 6, 17, 0.6);
         height: 9%;
@@ -171,7 +174,7 @@
     .text {
         width: 100%;
         color: #fff;
-        font-size: 0.15rem;
+        font-size: 0.20rem;
         /*position: absolute;*/
         bottom: 0;
         text-align: left;

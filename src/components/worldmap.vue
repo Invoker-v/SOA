@@ -6,7 +6,7 @@
 
 <script>
 import 'echarts/map/js/world'
-import { EventBus } from "./eventBus.js";
+// import { EventBus } from "./eventBus.js";
 import axios from "axios";
 
 const baseOption = {
@@ -16,10 +16,18 @@ const baseOption = {
         tooltip: {
             formatter: '{b}'
         },
-
+        lineStyle:{
+            show:false
+        },
+        label:{show:false},
+        checkpointStyle:{symbol:"none"},
+        controlStyle:{
+            itemGap: 0
+        },
+        symbol: "none",
         loop:false,
         axisType: 'category',
-        playInterval: 500,
+        playInterval: 1000,
         data: []
     },
     grid: {
@@ -31,6 +39,7 @@ const baseOption = {
     xAxis: {
         name: "area",
         type: 'value',
+        show: false,
         boundaryGap: [0, 0.01],
         splitLine:{
             show:false
@@ -49,30 +58,7 @@ const baseOption = {
             show:false
         },
     },
-    // dataZoom: [
-    //     {
-    //         show: true,
-    //         start: 0,
-    //         end: 100,
-    //         height:10
-    //     },
-    //     {
-    //         type: 'inside',
-    //         start: 0,
-    //         end: 100
-    //     },
-    //     {
-    //         show: true,
-    //         yAxisIndex: 0,
-    //         filterMode: 'empty',
-    //         width: 10,
-    //         height: '80%',
-    //         showDataShadow: false,
-    //         start:90,
-    //         end:100,
-    //         left: '0%'
-    //     }
-    // ],
+
     title: {
         text: 'COVID-19',
         subtext: 'data from John Hopkins',
@@ -110,6 +96,7 @@ const baseOption = {
                 show: false
             }
         },
+        zoom:0.5,
         show: false,
         silent: true,
         itemStyle: {
@@ -128,14 +115,14 @@ const baseOption = {
         // 指定 visualMapContinuous 组件的允许的最小/大值。'min'/'max' 必须用户指定。
         // [visualMap.min, visualMax.max] 形成了视觉映射的『定义域』
         min: 1,
-        max: 10000,
+        max: 100000,
         // 文本样式
         textStyle: {
             fontSize: 14,
             color: '#fff'
         },
-        right: '15%',
-        bottom: '5%',
+        left: '15%',
+        bottom: '50%',
         realtime: false, // 拖拽时，是否实时更新
         calculable: true, // 是否显示拖拽用的手柄
         // 定义 在选中范围中 的视觉元素
@@ -185,9 +172,7 @@ const baseOption = {
     ],
 }
 var options = []
-function getLocalTime(nS) {
-    return new Date(parseInt(nS) ).toLocaleString().replace(/:\d{1,2}$/,' ').split(" ")[0];
-}
+
 export default {
     name: "worldmap",
     mounted() {
@@ -201,44 +186,36 @@ export default {
         })
         this.getData(); //执行getData方法
         this.mychart.setOption({baseOption:baseOption, options:options});
-        EventBus.$on("date", (dataIndex) => {
+        var out = this
+        this.mychart.on("timelinechanged", function(param){
+            out.$EventBus.$emit("timelinechanged", param.currentIndex)
+            var times = this.getOption().timeline[0].data
+            var time = times[param.currentIndex]
+            this.setOption({title:[{subtext:time}]})
+        })
+        this.$EventBus.$on("date", (dataIndex) => {
             // A发送来的消息
+            var times = this.mychart.getOption().timeline[0].data
+            var time = times[dataIndex]
             this.mychart.setOption({timeline:[{currentIndex:dataIndex}]})
+            this.mychart.setOption({title:[{subtext:time}]})
         });
     },
     methods: {
-        processData(rawData){
-            var data = {}
-            rawData.forEach(item=>{
-                var date = getLocalTime(item.updateTime)
-                var country = item.name
-                var c = item.currentConfirmedCount
-                var r = item.curedCount
-                var d = item.deadCount
-
-                c += r + d
-                if (!data[date]){
-                    data[date] = {}
-                }
-                if (!data[date][country])
-                    data[date][country] = [c, r, d]
-
-            })
-            return data
-        },
         getData() {
-            axios.get("/api/record/all").then(res => {
+            axios.get("/api/record/country/all").then(res => {
                 var timeline_data = []
-                var time_data = []
-                var datas =  this.processData(res.data)
+                // var data = this.processData(res.data)
+                var time_data=[]
 
-                for (var date in datas){
-                    timeline_data.push(date)
+                for( var time in res.data){
+                    timeline_data.push(time)
                     var series = [{data:[]},{data:[]},{data:[]},{data:[]}, {data:[]}];
                     var data  = []
-                    for (var key in datas[date]){
-                        var s = datas[date][key]
-                        series[0].data.push({name:key, value:s[0]})
+                    for (var key in res.data[time]){
+                        var name = key;
+                        var s = [res.data[time][key].confirmed,  res.data[time][key].recovered, res.data[time][key].deaths]
+                        series[0].data.push({name:name, value:s[0]})
                         data.push({name:name, c:s[0], r:s[1], d:s[2]})
                     }
                     data.sort((a, b) => b.c-a.c)
@@ -254,23 +231,22 @@ export default {
                         if (i < cnt) {
                             option.yAxis.data.push(data[cnt - 1 - i].name)
                             series[1].data.push({
-                                value: data[cnt - 1 - i].c - data[cnt - 1 - i].r - data[cnt - 1 - i].d,
+                                value: data[cnt - 1 - i].c,
                                 visualMap: false
                             })
                             series[2].data.push({value: data[cnt - 1 - i].r, visualMap: false})
                             series[3].data.push({value: data[cnt - 1 - i].d, visualMap: false})
                         }
-                        cs += data[i].c
-                        rs += data[i].r
-                        ds += data[i].d
+                        cs += Number(data[i].c)
+                        rs += Number(data[i].r)
+                        ds += Number(data[i].d)
                     }
-                    series[4].data = [{value:cs+rs+ds, name: "确诊", visualMap: false}, {value:rs, name:"治愈", itemStyle:{color:"green"}, visualMap: false}, {value: ds, name: "死亡", visualMap: false}]
-                    time_data.push({date:date, data:[cs,rs,ds]})
-                    console.log(time_data)
+                    series[4].data = [{value:cs, name: "确诊", visualMap: false}, {value:rs, name:"治愈", itemStyle:{color:"green"}, visualMap: false}, {value: ds, name: "死亡", visualMap: false}]
+                    time_data.push({date: time, data:[cs+rs+ds,rs,ds]})
                     option.series = series
                     options.push(option);
                 }
-                EventBus.$emit('time_data',time_data)
+                this.$EventBus.$emit('time_data',time_data)
                 baseOption.timeline.data = timeline_data
                 baseOption.timeline.currentIndex = timeline_data.length - 1;
                 this.mychart.hideLoading()
