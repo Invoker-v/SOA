@@ -92,8 +92,9 @@
                 color: '#c23531',
                 maskColor: 'rgba(0, 0, 0, 0.1)',
             })
+            var out = this
+
             this.$EventBus.$on("time_data", (time_data) => {
-                console.log(time_data)
                 // A发送来的消息
                 option.series[0].data = []
                 option.series[1].data = []
@@ -114,14 +115,23 @@
                     dataIndex: currentIndex
                 })
             })
-            var out = this
+            this.$EventBus.$on("SwitchMap",  (time_data, region)=>{
+                option.series[0].data = []
+                option.series[1].data = []
+                option.series[2].data = []
+                option.xAxis.data = []
+                time_data.forEach(item=>{
+                    option.xAxis.data.push({value:item.date, textStyle:{color: 'white'}})
+                    for (var i = 0; i < 3; ++i)
+                        option.series[i].data.push({value:item.data[i], textStyle:{color: 'white'}})
+                })
+                this.mychart.setOption(option)
+                this.mychart.setOption({title:[{text: region+"疫情统计"}]})
+            }),
             this.mychart.on("click", function(param){
-                console.log(param)
-                if (param.dataIndex) {
+                if (param.dataIndex != undefined) {
                     out.$EventBus.$emit('date', param.dataIndex)
-
                 }
-
             })
         },
         beforeDestroy(){

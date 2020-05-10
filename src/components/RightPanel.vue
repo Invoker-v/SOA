@@ -1,19 +1,20 @@
 <template>
     <div id="RightPanel">
         <timeline>
-            <timeline-title>今日新闻</timeline-title>
-            <timeline-item v-for="item in news[index[0]]" :key="item.index" style="color: white;">{{item}}</timeline-item>
+            <timeline-title style="color: orange">今日新闻</timeline-title>
+            <timeline-item v-for="item in news[date[0]]"  :key="item.index" ><a target="_blank" :href="item.sourceUrl" style="color: white;">{{item.title}}</a></timeline-item>
         </timeline>
     </div>
 </template>
 <script>
     import axios from "axios";
     import { Timeline, TimelineItem, TimelineTitle } from 'vue-cute-timeline'
+    var TIME = []
     export default {
         data(){
             return {
-                news: [],
-                index: [0]
+                news: {},
+                date: [null]
             }
         },
         components: {
@@ -23,25 +24,24 @@
         },
         mounted() {
             axios.get('/api/news/all').then(res => {
-                var news = []
-                var i  = 0
-
-                for (var time in res.data) {
-                    news.push([])
-                    res.data[time].forEach(item=>{
-                        news[i].push(item.title)
+                var news = {}
+                for (var date in res.data) {
+                    news[date] = []
+                    res.data[date].forEach(item=>{
+                        news[date].push(item)
                     })
-                    i += 1
                 }
                 this.news = news
             })
+            this.$EventBus.$on("time", (time)=>{
+                TIME = time
+                this.$set(this.date, 0, TIME[TIME.length-1])
+            })
             this.$EventBus.$on("date", (index)=>{
-                console.log(this.index)
-                this.$set(this.index, 0, index)
+                this.$set(this.date, 0, TIME[index])
             })
             this.$EventBus.$on("timelinechanged", (index)=>{
-                console.log(index)
-                this.$set(this.index , 0, index)
+                this.$set(this.date , 0, TIME[index])
             })
         }
     }
