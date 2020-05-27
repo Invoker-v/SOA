@@ -5,8 +5,6 @@
 </template>
 
 <script>
-    // import axios from "axios";
-    // import { EventBus } from "./eventBus.js";
     var option = {
         title: {
             text: '世界疫情统计'
@@ -43,14 +41,16 @@
             splitLine: {
                 show: false
             },
-            textStyle:{color:"white"},
             data:[]
         },
         yAxis: {
             type: 'value',
             boundaryGap: [0, '100%'],
-            textStyle:{color:"white"},
-
+            axisLabel: {
+                textStyle: {
+                    color:'#fff'
+                }
+            },
             splitLine: {
                 show: true
             }

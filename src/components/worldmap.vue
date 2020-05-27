@@ -312,6 +312,7 @@ export default {
             });
         }
     },
+
     beforeDestroy(){
         this.mychart.clear()
     }

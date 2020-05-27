@@ -37,5 +37,4 @@ export default {
   margin-top: 0px;
 }
 
-
 </style>

@@ -118,7 +118,7 @@
 <style scoped>
     #header {
         position: fixed;
-        z-index: 2000;
+        z-index: 3000;
         width: 100%;
         background-color: rgba(1, 6, 17, 0.6);
         height: 9%;
